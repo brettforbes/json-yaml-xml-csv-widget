@@ -1,14 +1,25 @@
+/**
+ * Copyright 2026 Brett Forbes
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React from "react";
 import { Menu, Flex } from "@mantine/core";
 import { event as gaEvent } from "nextjs-google-analytics";
 import { CgChevronDown } from "react-icons/cg";
 import { MdFilterListAlt } from "react-icons/md";
 import { VscSearchFuzzy, VscJson, VscGroupByRefType } from "react-icons/vsc";
+import { isEmbedRoute } from "../../../lib/utils/embedMode";
+import useEmbedHost from "../../../store/useEmbedHost";
 import { useModal } from "../../../store/useModal";
 import { StyledToolElement } from "./styles";
 
 export const ToolsMenu = () => {
   const setVisible = useModal(state => state.setVisible);
+  const embedMode = isEmbedRoute();
+  const toolsMenuEnabled = useEmbedHost(state => state.toolsMenuEnabled);
+
+  if (embedMode && !toolsMenuEnabled) return null;
 
   return (
     <Menu shadow="md" withArrow>

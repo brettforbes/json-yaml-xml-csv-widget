@@ -1,74 +1,50 @@
-# 01 — Embed API
+# 01 — Embed API (summary)
+
+Full agent-oriented specification: **[Embed_prompt.md](../Embed_prompt.md)** at repo root.
 
 ## URL
 
 | Environment | URL |
 |-------------|-----|
-| Dev | `http://localhost:3000/widget` (default Next dev port) |
-| Static export | `{baseUrl}/widget` (e.g. copied to host `dist/data-viewer/widget/`) |
+| Dev | `http://localhost:3000/widget` |
+| Static export | `{baseUrl}/widget` |
 
-## Ready handshake
+## Quick sequence
 
-When the widget route is ready, the iframe posts to `parent`:
+1. Mount iframe with unique `id`
+2. Receive `data-viewer-ready`
+3. Send `data-viewer-configure`
+4. Send `data-viewer-set` / `data-viewer-set-mode` / `data-viewer-clear` as needed
+5. Handle viewer → host events (theme, fullscreen, import, export)
 
-```js
-// Structured (preferred)
-{ type: "data-viewer-ready", frameId: "<iframe id attribute or null>" }
+## Host → Viewer (protocol v1)
 
-// Legacy string (backward compatible) — same as frameId when present
-"<iframe id attribute>"
-```
+| type | Purpose |
+|------|---------|
+| `data-viewer-configure` | Tools menu, import/export root, fileIoMode, theme |
+| `data-viewer-set` | content + format (json\|yaml\|xml\|csv) |
+| `data-viewer-set-mode` | format only; optional `clear` |
+| `data-viewer-clear` | empty editor |
+| `data-viewer-theme` | light/dark from host |
+| `data-viewer-fullscreen` | graph or browser fullscreen |
 
-Host should wait for `data-viewer-ready` (or legacy string match) before sending data.
+## Viewer → Host
 
-## Set data (host → viewer)
+| type | Purpose |
+|------|---------|
+| `data-viewer-ready` | Handshake |
+| `data-viewer-theme-changed` | User changed theme |
+| `data-viewer-fullscreen-changed` | graph or browser fullscreen |
+| `data-viewer-cleared` | View cleared |
+| `data-viewer-import-request` | Delegated import (fileIoMode) |
+| `data-viewer-export` | Delegated export payload |
+| `data-viewer-format-changed` | User changed format in UI |
 
-```js
-iframe.contentWindow.postMessage(
-  {
-    type: "data-viewer-set",
-    content: "<raw string>",
-    format: "json", // json | yaml | xml | csv
-    options: {
-      theme: "dark",       // optional: light | dark
-      direction: "RIGHT"   // optional: LEFT | RIGHT | UP | DOWN
-    }
-  },
-  targetOrigin
-);
-```
+All messages include `protocolVersion: 1` and `frameId` matching the iframe `id`.
 
-### Legacy payload (still supported)
-
-```js
-{
-  json: "<string>",
-  options: { theme: "dark", direction: "RIGHT" }
-}
-```
-
-`json` implies `format: "json"`. `content` takes precedence when both are sent.
-
-## Host bridge sketch (Phase 2)
-
-```js
-window.Widgets.DataViewer = {
-  mount(container, { instanceId, src }) { /* create iframe */ },
-  setData(instanceId, { content, format, options }) { /* postMessage */ },
-  onReady(instanceId, callback) { /* register */ }
-};
-```
-
-## Security
-
-- Use a specific `targetOrigin` in production (not `"*"`).
-- Validate `event.source === iframe.contentWindow` before applying messages in the host.
-
-## Static build consumption
+## Static build
 
 ```powershell
-cd json-yaml-xml-csv-widget
-pnpm install
-pnpm build:www
-# Output: apps/www/out/  → copy to host dist/data-viewer/
+npx pnpm@10.20.0 build:www
+# apps/www/out/ → copy to host dist/data-viewer/
 ```
