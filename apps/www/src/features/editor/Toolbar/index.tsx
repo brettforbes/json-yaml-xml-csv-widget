@@ -12,7 +12,7 @@ import { FaChrome } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa6";
 import { TbExternalLink } from "react-icons/tb";
 import { GITHUB_REPO_URL, PRODUCT_NAME } from "../../../lib/constants/project";
-import { isEmbedRoute } from "../../../lib/utils/embedMode";
+import { isDataViewerAppRoute } from "../../../lib/utils/embedMode";
 import { JSONCrackLogo } from "../../../layout/JSONCrackBrandLogo";
 import { FileMenu } from "./FileMenu";
 import { ThemeToggle } from "./ThemeToggle";
@@ -69,19 +69,19 @@ function fullscreenBrowser() {
 }
 
 export const Toolbar = () => {
-  const embedMode = isEmbedRoute();
+  const dataViewerApp = isDataViewerAppRoute();
 
   return (
     <StyledTools>
       <Group gap="xs" justify="left" w="100%" style={{ flexWrap: "nowrap" }}>
-        {!embedMode && (
+        {!dataViewerApp && (
           <StyledToolElement title="JSON Crack">
             <Flex gap="xs" align="center" justify="center">
               <JSONCrackLogo fontSize="14px" hideLogo />
             </Flex>
           </StyledToolElement>
         )}
-        {embedMode && (
+        {dataViewerApp && (
           <StyledToolElement title={PRODUCT_NAME}>
             <Text fz="sm" fw={700} c="white" style={{ mixBlendMode: "difference" }}>
               {PRODUCT_NAME}
@@ -93,7 +93,7 @@ export const Toolbar = () => {
         <ToolsMenu />
       </Group>
       <Group gap="xs" justify="right" w="100%" style={{ flexWrap: "nowrap" }}>
-        {!embedMode && process.env.NEXT_PUBLIC_DISABLE_EXTERNAL_MODE !== "true" && (
+        {!dataViewerApp && process.env.NEXT_PUBLIC_DISABLE_EXTERNAL_MODE !== "true" && (
           <StyledToDiagramLink
             href="https://todiagram.com/editor?utm_source=jsoncrack&utm_medium=toolbar"
             target="_blank"
@@ -103,7 +103,7 @@ export const Toolbar = () => {
           </StyledToDiagramLink>
         )}
         <ThemeToggle />
-        {!embedMode && (
+        {!dataViewerApp && (
           <Link
             href="https://chromewebstore.google.com/detail/json-crack/hbaeglefdflnhodchjiaphmheaojikhh"
             rel="noopener"
@@ -115,7 +115,7 @@ export const Toolbar = () => {
           </Link>
         )}
         <Link
-          href={embedMode ? GITHUB_REPO_URL : "https://github.com/AykutSarac/jsoncrack.com"}
+          href={dataViewerApp ? GITHUB_REPO_URL : "https://github.com/AykutSarac/jsoncrack.com"}
           rel="noopener"
           target="_blank"
         >

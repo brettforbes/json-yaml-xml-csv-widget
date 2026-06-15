@@ -14,12 +14,12 @@
 
 | Mode | URL | Who drives data | Use when |
 |------|-----|-----------------|----------|
-| **Standalone** | `http://localhost:3000/editor` | User (File menu, paste, drag-drop) | Local editing, demos, debugging |
+| **Standalone** | `http://localhost:3000/` | User (File menu, paste, drag-drop) | Local use, demos |
 | **Embed (plugin)** | `http://localhost:3000/widget` | Host via `postMessage` | Inside another app (iframe) |
 
-Both run from the **same dev server** started by `.\start.ps1`. Standalone does **not** use `postMessage`; embed does.
+Both run from the **same dev server** started by `.\start.ps1`. The root URL `/` **is** the Data Viewer editor — there is no JSON Crack marketing site in this fork.
 
-**Landing page:** `http://localhost:3000/` (marketing/home).
+`/editor` also opens the same viewer (alias). Standalone does **not** use `postMessage`; embed does.
 
 ---
 
@@ -46,7 +46,7 @@ cd json-yaml-xml-csv-widget
 ```
 
 Embed URL (dev): `http://localhost:3000/widget`  
-Standalone URL (dev): `http://localhost:3000/editor`
+Standalone URL (dev): `http://localhost:3000/` (same viewer; `/editor` is an alias)
 
 Custom port: `.\start.ps1 -Port 3001`
 

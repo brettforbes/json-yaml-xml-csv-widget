@@ -10,7 +10,7 @@ import "allotment/dist/style.css";
 import { generateNextSeo } from "next-seo/pages";
 import { event as gaEvent } from "nextjs-google-analytics";
 import { LuChevronsRight } from "react-icons/lu";
-import { SEO } from "../constants/seo";
+import { PRODUCT_NAME } from "../lib/constants/project";
 import { darkTheme, lightTheme } from "../constants/theme";
 import { BottomBar } from "../features/editor/BottomBar";
 import { FullscreenDropzone } from "../features/editor/FullscreenDropzone";
@@ -20,14 +20,6 @@ import useConfig from "../store/useConfig";
 import useFile from "../store/useFile";
 
 const ModalController = dynamic(() => import("../features/modals/ModalController"));
-const EditorChoiceModal = dynamic(
-  () =>
-    import("../features/modals/EditorChoiceModal").then(mod => ({
-      default: mod.EditorChoiceModal,
-    })),
-  { ssr: false }
-);
-const ExternalMode = dynamic(() => import("../features/editor/ExternalMode"));
 
 export const StyledPageWrapper = styled.div`
   display: flex;
@@ -124,17 +116,15 @@ const EditorPage = () => {
     <>
       <Head>
         {generateNextSeo({
-          ...SEO,
-          title: "Editor | JSON Crack",
+          title: PRODUCT_NAME,
           description:
-            "JSON Crack Editor is a tool for visualizing into graphs, analyzing, editing, formatting, querying, transforming and validating JSON, CSV, YAML, XML, and more.",
-          canonical: "https://jsoncrack.com/editor",
+            "Visualize and edit JSON, YAML, XML, and CSV as interactive graphs.",
+          noindex: true,
+          nofollow: true,
         })}
       </Head>
       <ThemeProvider theme={darkmodeEnabled ? darkTheme : lightTheme}>
-        <ExternalMode />
         <ModalController />
-        <EditorChoiceModal />
         <StyledEditorWrapper>
           <StyledPageWrapper>
             <Toolbar />

@@ -12,9 +12,9 @@ Licensed under **Apache-2.0** — Copyright Brett Forbes, 2026. See [NOTICE](./N
 
 | Mode | URL | Description |
 |------|-----|-------------|
-| **Standalone editor** | http://localhost:3000/editor | Full app — open files, paste data, use all menus directly |
-| **Embed (plugin)** | http://localhost:3000/widget | iframe target — host controls via `postMessage` (see [Embed_prompt.md](./Embed_prompt.md)) |
-| Home | http://localhost:3000/ | Landing page |
+| **Data Viewer** | http://localhost:3000/ | Full editor — this is the app (no marketing site) |
+| **Embed (plugin)** | http://localhost:3000/widget | iframe target for host `postMessage` control |
+| Alias | http://localhost:3000/editor | Same as `/` |
 
 Custom port: `.\start.ps1 -Port 3001`
 
