@@ -10,7 +10,7 @@ Planning artifacts for embedding **Data Viewer** (fork of JSON Crack) in host ap
 | [01-embed-api.md](./01-embed-api.md) | Embed API summary |
 | [05-embed-host-contract.md](./05-embed-host-contract.md) | Full host contract implementation map |
 | [02-data-viewer-changes.md](./02-data-viewer-changes.md) | Rebrand, de-limit, UI stripping |
-| [03-spiderfeet-integration.md](./03-spiderfeet-integration.md) | Host bridge + sub-tab pattern (Phase 2) |
+| [03-spiderfeet-integration.md](./03-spiderfeet-integration.md) | SpiderFeet host bridge + full capability mapping |
 | [04-performance-epic.md](./04-performance-epic.md) | Future performance work (deferred) |
 | [issues.md](./issues.md) | GitHub issue breakdown and traceability |
 
