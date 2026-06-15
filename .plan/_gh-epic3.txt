@@ -1,0 +1,7 @@
+## Epic: Graph performance improvements (deferred)
+
+Parent plan: `.plan/04-performance-epic.md`
+
+**Not in Phase 1 scope.** Workerized parsing, viewport culling, optional canvas renderer.
+
+Schedule when real payloads exceed comfortable SVG interaction limits.

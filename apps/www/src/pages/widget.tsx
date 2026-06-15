@@ -1,43 +1,29 @@
+/**
+ * Copyright 2026 Brett Forbes
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React from "react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useMantineColorScheme } from "@mantine/core";
-import { ThemeProvider } from "styled-components";
-import type { LayoutDirection } from "jsoncrack-react";
 import { generateNextSeo } from "next-seo/pages";
 import toast from "react-hot-toast";
-import { darkTheme, lightTheme } from "../constants/theme";
+import { EmbedEditorLayout } from "../features/embed/EmbedEditorLayout";
 import useGraph from "../features/editor/views/GraphView/stores/useGraph";
+import { EMBED_READY_MESSAGE_TYPE, PRODUCT_NAME } from "../lib/constants/project";
+import { parseEmbedSetPayload } from "../lib/utils/embedMessage";
 import useConfig from "../store/useConfig";
 import useFile from "../store/useFile";
 import useJson from "../store/useJson";
 
-interface EmbedMessage {
-  data: {
-    json?: string;
-    options?: {
-      theme?: "light" | "dark";
-      direction?: LayoutDirection;
-    };
-  };
-}
-
-const ModalController = dynamic(() => import("../features/modals/ModalController"), {
-  ssr: false,
-});
-
-const GraphView = dynamic(
-  () => import("../features/editor/views/GraphView").then(c => c.GraphView),
-  {
-    ssr: false,
-  }
+const EmbedEditorLayoutDynamic = dynamic(
+  () => Promise.resolve({ default: EmbedEditorLayout }),
+  { ssr: false }
 );
 
 const WidgetPage = () => {
-  const { query, push, isReady } = useRouter();
-  const { setColorScheme } = useMantineColorScheme();
-  const [theme, setTheme] = React.useState<"dark" | "light">("dark");
+  const { query, isReady } = useRouter();
   const checkEditorSession = useFile(state => state.checkEditorSession);
   const setContents = useFile(state => state.setContents);
   const setDirection = useGraph(state => state.setDirection);
@@ -45,47 +31,53 @@ const WidgetPage = () => {
   const clearJson = useJson(state => state.clear);
 
   React.useEffect(() => {
-    if (isReady) {
-      if (typeof query?.json === "string") checkEditorSession(query.json, true);
-      else clearJson();
+    if (!isReady) return;
 
-      window.parent.postMessage(window.frameElement?.getAttribute("id"), "*");
-    }
-  }, [checkEditorSession, clearJson, isReady, push, query.json, query.partner]);
+    if (typeof query?.json === "string") checkEditorSession(query.json, true);
+    else clearJson();
+
+    const frameId = window.frameElement?.getAttribute("id") ?? null;
+    window.parent.postMessage({ type: EMBED_READY_MESSAGE_TYPE, frameId }, "*");
+    if (frameId) window.parent.postMessage(frameId, "*");
+  }, [checkEditorSession, clearJson, isReady, query?.json]);
 
   React.useEffect(() => {
-    const handler = (event: EmbedMessage) => {
+    const handler = (event: MessageEvent) => {
       try {
-        if (!event.data?.json) return;
-        if (event.data?.options?.theme === "light" || event.data?.options?.theme === "dark") {
-          setTheme(event.data.options.theme);
-          toggleDarkMode(event.data.options.theme === "dark");
+        const parsed = parseEmbedSetPayload(event.data);
+        if (!parsed) return;
+
+        if (parsed.options?.theme === "light" || parsed.options?.theme === "dark") {
+          toggleDarkMode(parsed.options.theme === "dark");
         }
 
-        setContents({ contents: event.data.json, hasChanges: false });
-        setDirection(event.data.options?.direction || "RIGHT");
+        setContents({
+          contents: parsed.content,
+          format: parsed.format,
+          hasChanges: false,
+        });
+        setDirection(parsed.options?.direction || "RIGHT");
       } catch (error) {
         console.error(error);
-        toast.error("Invalid JSON!");
+        toast.error("Unable to load data.");
       }
     };
 
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
-  }, [setColorScheme, setContents, setDirection, toggleDarkMode, theme]);
-
-  React.useEffect(() => {
-    setColorScheme(theme);
-  }, [setColorScheme, theme]);
+  }, [setContents, setDirection, toggleDarkMode]);
 
   return (
-    <ThemeProvider theme={theme === "dark" ? darkTheme : lightTheme}>
-      <Head>{generateNextSeo({ noindex: true, nofollow: true })}</Head>
-      <ModalController />
-      <div style={{ width: "100vw", height: "100vh" }}>
-        <GraphView isWidget />
-      </div>
-    </ThemeProvider>
+    <>
+      <Head>
+        {generateNextSeo({
+          title: `${PRODUCT_NAME} Embed`,
+          noindex: true,
+          nofollow: true,
+        })}
+      </Head>
+      <EmbedEditorLayoutDynamic />
+    </>
   );
 };
 

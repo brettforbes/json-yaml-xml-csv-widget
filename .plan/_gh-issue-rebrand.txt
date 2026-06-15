@@ -1,0 +1,9 @@
+Rebrand product strings to **Data Viewer** and point GitHub links to `brettforbes/json-yaml-xml-csv-widget`.
+
+**Plan:** `.plan/02-data-viewer-changes.md`  
+**Epic:** #1
+
+## Acceptance
+- [ ] Embed route shows Data Viewer naming (no JSON Crack in toolbar)
+- [ ] GitHub icon links to new repo
+- [ ] README updated for Data Viewer

@@ -1,0 +1,8 @@
+Remove graph size gate and ToDiagram upsell overlay in embed mode.
+
+**Plan:** `.plan/02-data-viewer-changes.md`  
+**Epic:** #1
+
+## Acceptance
+- [ ] Large graphs render without NotSupported overlay on `/widget`
+- [ ] `NEXT_PUBLIC_NODE_LIMIT` set high for dev/embed builds

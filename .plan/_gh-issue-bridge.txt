@@ -1,0 +1,5 @@
+Implement `window.Widgets.DataViewer` in spiderfeet-widget: iframe mount, ready queue, setData API.
+
+**Plan:** `.plan/03-spiderfeet-integration.md`  
+**Epic:** #2  
+**Repo:** spiderfeet-widget

@@ -1,0 +1,8 @@
+Add `start.ps1` at repo root to install deps and start dev server.
+
+**Plan:** `.plan/00-overview.md`  
+**Epic:** #1
+
+## Acceptance
+- [ ] `.\start.ps1` runs pnpm install if needed and starts dev:www
+- [ ] README documents quick start

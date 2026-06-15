@@ -1,11 +1,18 @@
+/**
+ * Copyright 2026 Brett Forbes
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import Link from "next/link";
-import { Flex, Group } from "@mantine/core";
+import { Flex, Group, Text } from "@mantine/core";
 import styled from "styled-components";
 import toast from "react-hot-toast";
 import { AiOutlineFullscreen } from "react-icons/ai";
 import { FaChrome } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa6";
 import { TbExternalLink } from "react-icons/tb";
+import { GITHUB_REPO_URL, PRODUCT_NAME } from "../../../lib/constants/project";
+import { isEmbedRoute } from "../../../lib/utils/embedMode";
 import { JSONCrackLogo } from "../../../layout/JSONCrackBrandLogo";
 import { FileMenu } from "./FileMenu";
 import { ThemeToggle } from "./ThemeToggle";
@@ -62,20 +69,31 @@ function fullscreenBrowser() {
 }
 
 export const Toolbar = () => {
+  const embedMode = isEmbedRoute();
+
   return (
     <StyledTools>
       <Group gap="xs" justify="left" w="100%" style={{ flexWrap: "nowrap" }}>
-        <StyledToolElement title="JSON Crack">
-          <Flex gap="xs" align="center" justify="center">
-            <JSONCrackLogo fontSize="14px" hideLogo />
-          </Flex>
-        </StyledToolElement>
+        {!embedMode && (
+          <StyledToolElement title="JSON Crack">
+            <Flex gap="xs" align="center" justify="center">
+              <JSONCrackLogo fontSize="14px" hideLogo />
+            </Flex>
+          </StyledToolElement>
+        )}
+        {embedMode && (
+          <StyledToolElement title={PRODUCT_NAME}>
+            <Text fz="sm" fw={700} c="white" style={{ mixBlendMode: "difference" }}>
+              {PRODUCT_NAME}
+            </Text>
+          </StyledToolElement>
+        )}
         <FileMenu />
         <ViewMenu />
         <ToolsMenu />
       </Group>
       <Group gap="xs" justify="right" w="100%" style={{ flexWrap: "nowrap" }}>
-        {process.env.NEXT_PUBLIC_DISABLE_EXTERNAL_MODE !== "true" && (
+        {!embedMode && process.env.NEXT_PUBLIC_DISABLE_EXTERNAL_MODE !== "true" && (
           <StyledToDiagramLink
             href="https://todiagram.com/editor?utm_source=jsoncrack&utm_medium=toolbar"
             target="_blank"
@@ -85,16 +103,22 @@ export const Toolbar = () => {
           </StyledToDiagramLink>
         )}
         <ThemeToggle />
+        {!embedMode && (
+          <Link
+            href="https://chromewebstore.google.com/detail/json-crack/hbaeglefdflnhodchjiaphmheaojikhh"
+            rel="noopener"
+            target="_blank"
+          >
+            <StyledToolElement title="Get Chrome Extension">
+              <FaChrome size="20" />
+            </StyledToolElement>
+          </Link>
+        )}
         <Link
-          href="https://chromewebstore.google.com/detail/json-crack/hbaeglefdflnhodchjiaphmheaojikhh"
+          href={embedMode ? GITHUB_REPO_URL : "https://github.com/AykutSarac/jsoncrack.com"}
           rel="noopener"
           target="_blank"
         >
-          <StyledToolElement title="Get Chrome Extension">
-            <FaChrome size="20" />
-          </StyledToolElement>
-        </Link>
-        <Link href="https://github.com/AykutSarac/jsoncrack.com" rel="noopener" target="_blank">
           <StyledToolElement title="GitHub">
             <FaGithub size="20" />
           </StyledToolElement>

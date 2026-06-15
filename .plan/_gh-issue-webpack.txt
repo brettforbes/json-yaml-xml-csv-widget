@@ -1,0 +1,5 @@
+Copy Data Viewer static export into spiderfeet `dist/data-viewer/` via webpack or sync script.
+
+**Plan:** `.plan/03-spiderfeet-integration.md`  
+**Epic:** #2  
+**Repo:** spiderfeet-widget

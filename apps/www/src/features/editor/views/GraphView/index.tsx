@@ -1,9 +1,14 @@
+/**
+ * Copyright 2026 Brett Forbes
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React from "react";
 import { Box } from "@mantine/core";
 import styled from "styled-components";
 import { JSONCrack } from "jsoncrack-react";
 import type { JSONCrackRef, NodeData } from "jsoncrack-react";
-import { SUPPORTED_LIMIT } from "../../../../constants/graph";
+import { getMaxRenderableNodes, isEmbedRoute } from "../../../../lib/utils/embedMode";
 import useConfig from "../../../../store/useConfig";
 import useJson from "../../../../store/useJson";
 import { useModal } from "../../../../store/useModal";
@@ -48,6 +53,7 @@ interface GraphProps {
 }
 
 export const GraphView = ({ isWidget = false }: GraphProps) => {
+  const embedMode = isWidget || isEmbedRoute();
   const setViewPort = useGraph(state => state.setViewPort);
   const setJsonCrackRef = useGraph(state => state.setJsonCrackRef);
   const direction = useGraph(state => state.direction);
@@ -83,14 +89,14 @@ export const GraphView = ({ isWidget = false }: GraphProps) => {
     [setSelectedNode, setVisible]
   );
 
-  const maxVisibleNodes = Number.isFinite(SUPPORTED_LIMIT) ? SUPPORTED_LIMIT : 1500;
+  const maxVisibleNodes = getMaxRenderableNodes();
 
   return (
     <Box pos="relative" h="100%" w="100%">
-      {!isWidget && <SecureInfo />}
-      {!isWidget && <Toolbar />}
+      {!embedMode && <SecureInfo />}
+      <Toolbar />
       <StyledEditorWrapper
-        $widget={isWidget}
+        $widget={embedMode}
         onContextMenu={event => event.preventDefault()}
         onClick={blurOnClick}
       >
@@ -108,7 +114,9 @@ export const GraphView = ({ isWidget = false }: GraphProps) => {
           onViewportCreate={setViewPort}
           onNodeClick={handleNodeClick}
           onCollapseChange={handleCollapseChange}
-          renderNodeLimitExceeded={() => <NotSupported />}
+          renderNodeLimitExceeded={
+            embedMode ? undefined : () => <NotSupported />
+          }
         />
       </StyledEditorWrapper>
     </Box>

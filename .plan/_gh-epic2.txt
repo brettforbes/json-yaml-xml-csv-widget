@@ -1,0 +1,7 @@
+## Epic: SpiderFeet host integration (Phase 2)
+
+Parent plan: `.plan/03-spiderfeet-integration.md`
+
+Bridge module, sub-tab shells, static build copy into spiderfeet-widget dist.
+
+**Blocked:** Composer tab wiring awaits product disclosure.
