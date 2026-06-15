@@ -1,6 +1,8 @@
 # Data Viewer — Embed Integration Prompt
 
-**Audience:** An AI agent or developer integrating this repository into a host application (e.g. [spiderfeet-widget](https://github.com/brettforbes/spiderfeet-widget)).
+**Audience:** An AI agent or developer integrating this repository into a **host application** (e.g. [spiderfeet-widget](https://github.com/brettforbes/spiderfeet-widget)).
+
+**You do not need to read or modify this repository's source code** to integrate the viewer. Everything required is in this document plus the static build output (or a dev URL).
 
 **Goal:** Embed Data Viewer in an iframe, exchange data over `postMessage`, and keep theme/fullscreen/file IO in sync with the host.
 
@@ -8,14 +10,28 @@
 
 ---
 
+## 0. Standalone vs embed (important)
+
+| Mode | URL | Who drives data | Use when |
+|------|-----|-----------------|----------|
+| **Standalone** | `http://localhost:3000/editor` | User (File menu, paste, drag-drop) | Local editing, demos, debugging |
+| **Embed (plugin)** | `http://localhost:3000/widget` | Host via `postMessage` | Inside another app (iframe) |
+
+Both run from the **same dev server** started by `.\start.ps1`. Standalone does **not** use `postMessage`; embed does.
+
+**Landing page:** `http://localhost:3000/` (marketing/home).
+
+---
+
 ## 1. What this repo provides
 
 | Artifact | Purpose |
 |----------|---------|
-| `/widget` route | Full editor UI (text + graph) in iframe-safe embed mode |
-| Static export | `apps/www/out/widget/` after `pnpm build:www` |
-| `start.ps1` | Local dev: `http://localhost:3000/widget` |
-| This document | Complete host ↔ viewer contract |
+| `/widget` route | Embed/plugin UI — host controls via `postMessage` |
+| `/editor` route | Standalone full editor — user operates directly |
+| Static export | `apps/www/out/` after `pnpm build:www` (`widget/` + `editor/`) |
+| `start.ps1` | Starts dev server: `/editor` (standalone) and `/widget` (embed) |
+| This document | Complete host ↔ viewer contract (no source reading required) |
 
 The viewer is a **slave**: the host owns data, theme policy, and (optionally) file dialogs. The viewer renders what it is told and reports user actions back.
 
@@ -29,7 +45,10 @@ cd json-yaml-xml-csv-widget
 .\start.ps1
 ```
 
-Embed URL (dev): `http://localhost:3000/widget`
+Embed URL (dev): `http://localhost:3000/widget`  
+Standalone URL (dev): `http://localhost:3000/editor`
+
+Custom port: `.\start.ps1 -Port 3001`
 
 Production build:
 
@@ -286,7 +305,52 @@ User changed format in the bottom bar.
 
 ---
 
-## 8. Import / export root directory
+## 8. Import, export, and configuration
+
+### 8.1 Defaults if host skips `data-viewer-configure`
+
+The viewer still works, but embed-specific behaviour uses these defaults until configure is sent:
+
+| Setting | Default |
+|---------|---------|
+| `toolsMenuEnabled` | `true` |
+| `importExportRoot` | `""` |
+| `fileIoMode` | `delegated` |
+| `theme` | dark (from viewer localStorage) |
+
+**Recommendation:** always send `data-viewer-configure` immediately after `data-viewer-ready`.
+
+---
+
+### 8.2 Delegated import round-trip (complete example)
+
+```
+User clicks File → Import in viewer
+  → viewer posts data-viewer-import-request { importExportRoot: "/project/data" }
+Host opens file picker mapped to /project/data
+Host reads file bytes as text
+  → host posts data-viewer-set { content, format: "yaml" }
+Viewer renders updated graph
+```
+
+```js
+window.addEventListener("message", async (event) => {
+  if (event.data?.type !== "data-viewer-import-request") return;
+  const logicalPath = await hostPickFile(event.data.importExportRoot); // your API
+  const { content, format } = await hostReadFile(logicalPath);
+  iframe.contentWindow.postMessage({
+    type: "data-viewer-set",
+    protocolVersion: 1,
+    frameId: event.data.frameId,
+    content,
+    format,
+  }, targetOrigin);
+});
+```
+
+---
+
+### 8.3 Import / export root directory
 
 Browser iframes **cannot** set the OS file-picker root. `importExportRoot` is a **logical path** your host interprets:
 
@@ -522,7 +586,37 @@ Place in the host app (e.g. `src/js/data-viewer.js`):
 
 ---
 
-## 13. Files in this repo (for agents editing Data Viewer)
+## 13. Troubleshooting (no codebase access needed)
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| No graph after `set` | `content` empty or invalid for `format` | Send valid raw string; check viewer shows parse error in text pane |
+| Messages ignored | `frameId` mismatch | Host `frameId` must equal iframe `id` attribute |
+| Ready never fires | iframe blocked or wrong `src` | Confirm URL loads; check CSP `frame-src` |
+| Import does nothing | `fileIoMode: "delegated"` | Host must handle `data-viewer-import-request` and reply with `set` |
+| Export does nothing | `fileIoMode: "delegated"` | Host must handle `data-viewer-export` event |
+| Theme out of sync | Host not listening | Handle `data-viewer-theme-changed`; or send `data-viewer-theme` |
+| State lost on tab switch | iframe removed from DOM | Hide with CSS only; keep iframe mounted |
+| `postMessage` blocked | Wrong origin | Set `parentOrigin` in configure; use matching `targetOrigin` |
+
+**Invalid payloads:** viewer shows a toast ("Unable to process host message" / "Unable to load data"); host should log and retry with corrected payload.
+
+**Silent ignore:** messages with wrong `frameId` are dropped intentionally (multi-instance safety).
+
+---
+
+## 14. What the host agent does NOT need
+
+- This repo's React/Next source tree
+- `jsoncrack-react` package internals
+- Webpack or build config of the viewer (only copy `apps/www/out/` or iframe to a hosted URL)
+- Git access to this repo at runtime (only at build/sync time)
+
+The host agent **does** need: iframe HTML, `postMessage` handlers, and (for delegated IO) host file APIs.
+
+---
+
+## 15. Source files (only if editing Data Viewer itself)
 
 | Path | Role |
 |------|------|
@@ -537,7 +631,7 @@ Place in the host app (e.g. `src/js/data-viewer.js`):
 
 ---
 
-## 14. Verification
+## 16. Verification
 
 1. `.\start.ps1` → open `/widget` in browser.
 2. Open devtools console on a parent test page; mount iframe; confirm `data-viewer-ready`.
@@ -548,7 +642,7 @@ Place in the host app (e.g. `src/js/data-viewer.js`):
 
 ---
 
-## 15. Out of scope (see GitHub #15)
+## 17. Out of scope (see GitHub #15)
 
 Performance work (workerized parse, canvas renderer) is documented in `.plan/04-performance-epic.md` and is **not** required for embed integration.
 
