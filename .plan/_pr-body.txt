@@ -1,0 +1,17 @@
+## Summary
+
+- Adds `.plan/` delivery documentation (embed API, Phase 2 spiderfeet integration, deferred performance epic)
+- Rebrands embed route to **Data Viewer**; removes Pro/logo/chrome promo on `/widget`
+- Removes graph size gate on embed route
+- Extends postMessage API: `content` + `format` (json|yaml|xml|csv) with ready handshake
+- `/widget` now serves the **full editor** (text + graph panes)
+- Adds `start.ps1`, `NOTICE`, and updated README
+
+## Test plan
+
+- [x] `npx pnpm@10.20.0 build:www` succeeds
+- [ ] `.\start.ps1` → open http://localhost:3000/widget
+- [ ] postMessage YAML/XML/CSV loads in viewer
+- [ ] Large graph renders without ToDiagram overlay on `/widget`
+
+Closes #1, #4, #5, #6, #7, #8, #9, #10

@@ -1,0 +1,6 @@
+Add embed-ready Data Viewer with planning artifacts and start.ps1.
+
+Deliver full editor at /widget, extended postMessage API for json/yaml/xml/csv,
+removed commercial UI and size gates on embed route, and documented Phase 2/3 work.
+
+Closes #1, #4, #5, #6, #7, #8, #9, #10
