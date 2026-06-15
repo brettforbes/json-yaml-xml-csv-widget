@@ -11,8 +11,8 @@ import { SoftwareApplicationJsonLd } from "next-seo";
 import { generateDefaultSeo } from "next-seo/pages";
 import { GoogleAnalytics } from "nextjs-google-analytics";
 import { Toaster } from "react-hot-toast";
+import { PRODUCT_NAME } from "../lib/constants/project";
 import GlobalStyle from "../constants/globalStyle";
-import { SEO } from "../constants/seo";
 import { lightTheme } from "../constants/theme";
 import { smartColorSchemeManager } from "../lib/utils/mantineColorScheme";
 
@@ -74,20 +74,32 @@ function JSONCrackApp({ Component, pageProps }: AppProps) {
   const colorSchemeManager = smartColorSchemeManager({
     key: "editor-color-scheme",
     getPathname: () => pathname,
-    dynamicPaths: ["/editor", "/widget"], // Editor and widget paths use dynamic theme
+    dynamicPaths: ["/", "/editor", "/widget"],
   });
+
+  const isDataViewer =
+    pathname === "/" || pathname === "/editor" || pathname.startsWith("/widget");
 
   return (
     <>
-      <Head>{generateDefaultSeo(SEO)}</Head>
-      <SoftwareApplicationJsonLd
-        name="JSON Crack"
-        type="SoftwareApplication"
-        operatingSystem="Browser"
-        applicationCategory="DeveloperApplication"
-        aggregateRating={{ ratingValue: 4.9, ratingCount: 19 }}
-        datePublished="2022-17-02"
-      />
+      <Head>
+        {generateDefaultSeo({
+          title: isDataViewer ? PRODUCT_NAME : "Data Viewer",
+          description: "Visualize JSON, YAML, XML, and CSV as interactive graphs.",
+          noindex: true,
+          nofollow: true,
+        })}
+      </Head>
+      {isDataViewer ? null : (
+        <SoftwareApplicationJsonLd
+          name="JSON Crack"
+          type="SoftwareApplication"
+          operatingSystem="Browser"
+          applicationCategory="DeveloperApplication"
+          aggregateRating={{ ratingValue: 4.9, ratingCount: 19 }}
+          datePublished="2022-17-02"
+        />
+      )}
       <MantineProvider
         colorSchemeManager={colorSchemeManager}
         defaultColorScheme="light"

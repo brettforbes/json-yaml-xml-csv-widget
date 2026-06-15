@@ -9,9 +9,16 @@ export const isEmbedRoute = (): boolean => {
   return window.location.pathname.includes("/widget");
 };
 
-/** Node cap for graph rendering; embed mode removes the commercial gate. */
+/** True on Data Viewer app routes (`/`, `/editor`, `/widget`) — not marketing pages. */
+export const isDataViewerAppRoute = (): boolean => {
+  if (typeof window === "undefined") return false;
+  const path = window.location.pathname.replace(/\/$/, "") || "/";
+  return path === "/" || path === "/editor" || path.endsWith("/widget");
+};
+
+/** Node cap for graph rendering; Data Viewer routes remove the commercial gate. */
 export const getMaxRenderableNodes = (): number => {
-  if (isEmbedRoute()) return Number.MAX_SAFE_INTEGER;
+  if (isDataViewerAppRoute()) return Number.MAX_SAFE_INTEGER;
 
   const fromEnv = +(process.env.NEXT_PUBLIC_NODE_LIMIT as string);
   return Number.isFinite(fromEnv) ? fromEnv : 1500;
