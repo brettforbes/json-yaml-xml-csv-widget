@@ -1,0 +1,9 @@
+Remove commercial UI from embed toolbar: JSON Crack logo, Upgrade to Pro, Chrome extension promo.
+
+**Plan:** `.plan/02-data-viewer-changes.md`  
+**Epic:** #1
+
+## Acceptance
+- [ ] `/widget` toolbar has no logo image
+- [ ] No Upgrade to Pro button on embed route
+- [ ] No Chrome extension link on embed route

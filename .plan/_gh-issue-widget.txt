@@ -1,0 +1,8 @@
+Use full editor layout (text pane + graph) on `/widget`, matching standalone editor UX.
+
+**Plan:** `.plan/00-overview.md`  
+**Epic:** #1
+
+## Acceptance
+- [ ] `/widget` shows text editor, graph, graph toolbar, file/view menus
+- [ ] No EditorChoiceModal or ExternalMode on widget route

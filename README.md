@@ -1,28 +1,51 @@
+# Data Viewer
+
+Embeddable JSON / YAML / XML / CSV viewer (fork of [JSON Crack](https://github.com/AykutSarac/jsoncrack.com)) for use in iframe hosts such as [spiderfeet-widget](https://github.com/brettforbes/spiderfeet-widget).
+
+Licensed under **Apache-2.0** — Copyright Brett Forbes, 2026. See [NOTICE](./NOTICE) and [LICENSE.md](./LICENSE.md).
+
+## Quick start
+
+```powershell
+.\start.ps1
+```
+
+Dev embed URL: **http://localhost:3000/widget**
+
+Production static build:
+
+```bash
+pnpm install
+pnpm build:www
+```
+
+Output: `apps/www/out/` (includes `widget/` for iframe embed).
+
+## Embed API
+
+See [.plan/01-embed-api.md](./.plan/01-embed-api.md) for the postMessage contract (`content`, `format`, ready handshake).
+
+## Planning
+
+Delivery plan: [.plan/README.md](./.plan/README.md)
+
+---
+
 <!-- PROJECT LOGO -->
 <p align="center">
-  <a href="https://github.com/AykutSarac/jsoncrack.com">
+  <a href="https://github.com/brettforbes/json-yaml-xml-csv-widget">
    <img src="./apps/www/public/assets/192.png" height="50" alt="Logo">
   </a>
 
-  <h1 align="center">JSON Crack</h1>
+  <h1 align="center">Data Viewer</h1>
 
   <p align="center">
-    The open-source JSON Editor.
+    Visualize JSON, YAML, XML, and CSV as interactive graphs.
     <br />
-    <a href="https://jsoncrack.com"><strong>Learn more »</strong></a>
+    <a href="https://github.com/brettforbes/json-yaml-xml-csv-widget"><strong>Repository »</strong></a>
     <br />
     <br />
-    <a href="https://todiagram.com?utm_source=jsoncrack&utm_medium=readme_header">ToDiagram</a>
-    ·
-    <a href="https://discord.gg/yVyTtCRueq">Discord</a>
-    ·
-    <a href="https://jsoncrack.com">Website</a>
-    ·
-    <a href="https://github.com/AykutSarac/jsoncrack.com/issues">Issues</a>
-    ·
-    <a href="https://marketplace.visualstudio.com/items?itemName=AykutSarac.jsoncrack-vscode">VS Code</a>
-    ·
-    <a href="https://chromewebstore.google.com/detail/hbaeglefdflnhodchjiaphmheaojikhh">Chrome</a>
+    <a href="https://github.com/brettforbes/json-yaml-xml-csv-widget/issues">Issues</a>
   </p>
 </p>
 

@@ -1,0 +1,5 @@
+## Epic: Embed-ready Data Viewer
+
+Parent plan: `.plan/00-overview.md`
+
+Deliver embeddable Data Viewer at `/widget` with full editor UX, postMessage API, no commercial UI, no size gate.

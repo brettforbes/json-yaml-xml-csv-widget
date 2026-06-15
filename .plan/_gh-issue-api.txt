@@ -1,0 +1,9 @@
+Extend postMessage API: `content` + `format` (json|yaml|xml|csv), structured ready handshake.
+
+**Plan:** `.plan/01-embed-api.md`  
+**Epic:** #1
+
+## Acceptance
+- [ ] Host can send YAML/XML/CSV raw strings with format field
+- [ ] Legacy `json` field still works
+- [ ] iframe posts `{ type: 'data-viewer-ready', frameId }` when ready

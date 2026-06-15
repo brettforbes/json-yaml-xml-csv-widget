@@ -1,0 +1,8 @@
+Add NOTICE for upstream JSON Crack attribution; Apache 2.0 headers on modified source files.
+
+**Plan:** `.plan/02-data-viewer-changes.md`  
+**Epic:** #1
+
+## Acceptance
+- [ ] NOTICE file in repo root
+- [ ] Modified files in Phase 1 PR carry copyright header

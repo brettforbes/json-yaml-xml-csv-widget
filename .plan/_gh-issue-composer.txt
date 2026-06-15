@@ -1,0 +1,5 @@
+Wire Composer tab to Data Viewer instance when product requirements are disclosed.
+
+**Plan:** `.plan/03-spiderfeet-integration.md`  
+**Epic:** #2  
+**Status:** Blocked — awaiting disclosure

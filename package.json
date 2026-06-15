@@ -1,14 +1,13 @@
 {
-  "name": "jsoncrack-monorepo",
+  "name": "data-viewer-monorepo",
   "private": true,
   "license": "Apache-2.0",
-  "homepage": "https://jsoncrack.com",
+  "homepage": "https://github.com/brettforbes/json-yaml-xml-csv-widget",
   "author": {
-    "name": "Aykut Saraç",
-    "email": "aykutsarac0@gmail.com"
+    "name": "Brett Forbes"
   },
   "bugs": {
-    "url": "https://github.com/AykutSarac/jsoncrack.com/issues"
+    "url": "https://github.com/brettforbes/json-yaml-xml-csv-widget/issues"
   },
   "scripts": {
     "dev": "turbo run dev",

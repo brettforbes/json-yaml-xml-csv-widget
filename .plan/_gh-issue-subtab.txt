@@ -1,0 +1,5 @@
+Add sub-tab UI pattern per context pane; hide/show iframe panes without destroying DOM.
+
+**Plan:** `.plan/03-spiderfeet-integration.md`  
+**Epic:** #2  
+**Repo:** spiderfeet-widget

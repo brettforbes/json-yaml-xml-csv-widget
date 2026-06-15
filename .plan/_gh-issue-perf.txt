@@ -1,0 +1,5 @@
+Umbrella for deferred performance work. See `.plan/04-performance-epic.md`.
+
+Sub-tasks: workerized parse, collapse defaults, viewport culling, canvas renderer, lazy iframe mount, benchmarks.
+
+**Not in Phase 1.**
