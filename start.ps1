@@ -22,6 +22,8 @@ if (-not (Test-Path "node_modules")) {
     Invoke-Pnpm install
 }
 
-Write-Host "Starting Data Viewer dev server at http://localhost:$Port/widget ..."
+Write-Host "Starting Data Viewer dev server ..."
+Write-Host "  Standalone editor: http://localhost:$Port/editor"
+Write-Host "  Embed (plugin):    http://localhost:$Port/widget"
 $env:PORT = "$Port"
 Invoke-Pnpm dev:www
