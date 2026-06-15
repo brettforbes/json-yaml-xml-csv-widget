@@ -1,0 +1,8 @@
+Implement full embed host contract: configure, set-mode, clear, theme/fullscreen sync, delegated import/export.
+
+Spec: Embed_prompt.md
+
+## Acceptance
+- [ ] All message types in Embed_prompt.md implemented
+- [ ] README embed section updated
+- [ ] Build passes

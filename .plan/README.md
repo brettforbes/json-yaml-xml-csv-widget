@@ -7,7 +7,8 @@ Planning artifacts for embedding **Data Viewer** (fork of JSON Crack) in host ap
 | File | Purpose |
 |------|---------|
 | [00-overview.md](./00-overview.md) | Architecture, scope, delivery phases |
-| [01-embed-api.md](./01-embed-api.md) | iframe + postMessage contract |
+| [01-embed-api.md](./01-embed-api.md) | Embed API summary |
+| [05-embed-host-contract.md](./05-embed-host-contract.md) | Full host contract implementation map |
 | [02-data-viewer-changes.md](./02-data-viewer-changes.md) | Rebrand, de-limit, UI stripping |
 | [03-spiderfeet-integration.md](./03-spiderfeet-integration.md) | Host bridge + sub-tab pattern (Phase 2) |
 | [04-performance-epic.md](./04-performance-epic.md) | Future performance work (deferred) |
@@ -15,7 +16,7 @@ Planning artifacts for embedding **Data Viewer** (fork of JSON Crack) in host ap
 
 ## Active phase
 
-**Phase 1 — Embed-ready Data Viewer** (this repo): rebrand, remove commercial/size gates, full editor at `/widget`, extended postMessage API, `start.ps1`, static build.
+**Phase 1b:** Full embed host contract — see [Embed_prompt.md](../Embed_prompt.md) and `.plan/05-embed-host-contract.md`.
 
 **Phase 2 — SpiderFeet host** (sibling repo): `window.Widgets.DataViewer` bridge, sub-tabs per context pane, Composer tab wiring when disclosed.
 

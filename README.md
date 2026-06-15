@@ -21,9 +21,74 @@ pnpm build:www
 
 Output: `apps/www/out/` (includes `widget/` for iframe embed).
 
-## Embed API
+## Embed mode (plugin integration)
 
-See [.plan/01-embed-api.md](./.plan/01-embed-api.md) for the postMessage contract (`content`, `format`, ready handshake).
+Data Viewer is designed as an **iframe slave** for host applications. The host sends data and configuration; the viewer renders and reports user actions (theme, fullscreen, import/export).
+
+### For integrators / AI agents
+
+**Start here:** [Embed_prompt.md](./Embed_prompt.md) — full protocol, reference host bridge, multi-instance rules, and verification steps. Import this file into the host codebase agent context.
+
+Short summary: [.plan/01-embed-api.md](./.plan/01-embed-api.md)
+
+### Capabilities
+
+| Capability | Host → Viewer | Viewer → Host |
+|------------|---------------|---------------|
+| Load data | `data-viewer-set` (`content` + `format`) | — |
+| Set format | `data-viewer-set-mode` | `data-viewer-format-changed` |
+| Clear view | `data-viewer-clear` | `data-viewer-cleared` |
+| Tools menu | `configure.toolsMenuEnabled` | — |
+| Import/export root | `configure.importExportRoot` | `import-request` / `export` events |
+| Theme | `data-viewer-theme` | `data-viewer-theme-changed` |
+| Fullscreen | `data-viewer-fullscreen` (`graph` \| `browser`) | `data-viewer-fullscreen-changed` |
+
+### Minimal host example
+
+```html
+<iframe id="data-viewer-1" src="http://localhost:3000/widget" style="border:0;width:100%;height:100%"></iframe>
+```
+
+```js
+const iframe = document.getElementById("data-viewer-1");
+window.addEventListener("message", (event) => {
+  if (event.source !== iframe.contentWindow) return;
+  if (event.data?.type === "data-viewer-ready") {
+    iframe.contentWindow.postMessage({
+      type: "data-viewer-configure",
+      frameId: "data-viewer-1",
+      protocolVersion: 1,
+      toolsMenuEnabled: true,
+      importExportRoot: "/project/data",
+      fileIoMode: "delegated",
+      theme: "dark"
+    }, "*");
+    iframe.contentWindow.postMessage({
+      type: "data-viewer-set",
+      frameId: "data-viewer-1",
+      protocolVersion: 1,
+      content: '{"hello":"world"}',
+      format: "json"
+    }, "*");
+  }
+});
+```
+
+### Environment expectations
+
+| Requirement | Recommended |
+|-------------|-------------|
+| Node.js | ≥ 24 |
+| pnpm | ≥ 10 |
+| Dev command | `.\start.ps1` |
+| Embed route | `/widget` |
+| Static output | `apps/www/out/widget/` |
+
+Node 22 may work with `engine-strict=false` in `.npmrc` (not ideal for production CI).
+
+### Tab persistence
+
+Use **one iframe per context**, hide with CSS when inactive — do not remove the iframe or change `src` on tab switch.
 
 ## Planning
 
