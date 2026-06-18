@@ -8,7 +8,7 @@ import { Box } from "@mantine/core";
 import styled from "styled-components";
 import { JSONCrack } from "jsoncrack-react";
 import type { JSONCrackRef, NodeData } from "jsoncrack-react";
-import { getMaxRenderableNodes, isDataViewerAppRoute, isEmbedRoute } from "../../../../lib/utils/embedMode";
+import { useViewerRoute } from "../../../../lib/utils/embedMode";
 import useConfig from "../../../../store/useConfig";
 import useJson from "../../../../store/useJson";
 import { useModal } from "../../../../store/useModal";
@@ -53,8 +53,8 @@ interface GraphProps {
 }
 
 export const GraphView = ({ isWidget = false }: GraphProps) => {
-  const embedMode = isWidget || isEmbedRoute();
-  const dataViewerApp = isDataViewerAppRoute();
+  const { isEmbed, isDataViewerApp, maxRenderableNodes } = useViewerRoute();
+  const embedMode = isWidget || isEmbed;
   const setViewPort = useGraph(state => state.setViewPort);
   const setJsonCrackRef = useGraph(state => state.setJsonCrackRef);
   const direction = useGraph(state => state.direction);
@@ -90,11 +90,11 @@ export const GraphView = ({ isWidget = false }: GraphProps) => {
     [setSelectedNode, setVisible]
   );
 
-  const maxVisibleNodes = getMaxRenderableNodes();
+  const maxVisibleNodes = maxRenderableNodes;
 
   return (
     <Box pos="relative" h="100%" w="100%">
-      {!dataViewerApp && <SecureInfo />}
+      {!isDataViewerApp && <SecureInfo />}
       <Toolbar />
       <StyledEditorWrapper
         $widget={embedMode}
@@ -116,7 +116,7 @@ export const GraphView = ({ isWidget = false }: GraphProps) => {
           onNodeClick={handleNodeClick}
           onCollapseChange={handleCollapseChange}
           renderNodeLimitExceeded={
-            dataViewerApp ? undefined : () => <NotSupported />
+            isDataViewerApp ? undefined : () => <NotSupported />
           }
         />
       </StyledEditorWrapper>

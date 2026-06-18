@@ -12,7 +12,6 @@ import { EmbedEditorLayout } from "../features/embed/EmbedEditorLayout";
 import { useEmbedBridge } from "../hooks/useEmbedBridge";
 import { PRODUCT_NAME } from "../lib/constants/project";
 import useFile from "../store/useFile";
-import useJson from "../store/useJson";
 
 const EmbedEditorLayoutDynamic = dynamic(
   () => Promise.resolve({ default: EmbedEditorLayout }),
@@ -22,15 +21,15 @@ const EmbedEditorLayoutDynamic = dynamic(
 const WidgetPage = () => {
   const { query, isReady } = useRouter();
   const checkEditorSession = useFile(state => state.checkEditorSession);
-  const clearJson = useJson(state => state.clear);
+  const clearFile = useFile(state => state.clear);
 
   useEmbedBridge(isReady);
 
   React.useEffect(() => {
     if (!isReady) return;
     if (typeof query?.json === "string") checkEditorSession(query.json, true);
-    else clearJson();
-  }, [checkEditorSession, clearJson, isReady, query?.json]);
+    else clearFile();
+  }, [checkEditorSession, clearFile, isReady, query?.json]);
 
   return (
     <>

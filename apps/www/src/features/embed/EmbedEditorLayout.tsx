@@ -7,7 +7,7 @@ import React, { useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Tooltip, useMantineColorScheme } from "@mantine/core";
 import "@mantine/dropzone/styles.css";
-import styled, { ThemeProvider } from "styled-components";
+import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
 import { Allotment } from "allotment";
 import "allotment/dist/style.css";
 import { LuChevronsRight } from "react-icons/lu";
@@ -20,13 +20,24 @@ import useConfig from "../../store/useConfig";
 
 const ModalController = dynamic(() => import("../modals/ModalController"), { ssr: false });
 
+const EmbedFillGlobal = createGlobalStyle`
+  html,
+  body,
+  #__next {
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+  }
+`;
+
 const TextEditor = dynamic(() => import("../editor/TextEditor"), { ssr: false });
 const LiveEditor = dynamic(() => import("../editor/LiveEditor"), { ssr: false });
 
 export const StyledPageWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
+  min-height: 100%;
   width: 100%;
 `;
 
@@ -81,6 +92,7 @@ export const EmbedEditorLayout = () => {
 
   return (
     <ThemeProvider theme={darkmodeEnabled ? darkTheme : lightTheme}>
+      <EmbedFillGlobal />
       <ModalController />
       <StyledEditorWrapper>
         <StyledPageWrapper>

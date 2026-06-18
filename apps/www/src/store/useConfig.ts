@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 const initialStates = {
-  darkmodeEnabled: true,
+  darkmodeEnabled: false,
   liveTransformEnabled: true,
   gesturesEnabled: false,
   rulersEnabled: true,

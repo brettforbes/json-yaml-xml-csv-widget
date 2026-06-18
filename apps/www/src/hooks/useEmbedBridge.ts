@@ -45,6 +45,10 @@ export const useEmbedBridge = (isReady: boolean) => {
   useEffect(() => {
     if (!isReady) return;
 
+    suppressThemeOutbound.current = true;
+    toggleDarkMode(false);
+    setColorScheme("light");
+
     const frameId = window.frameElement?.getAttribute("id") ?? null;
     applyConfigure({ frameId });
 
@@ -53,7 +57,7 @@ export const useEmbedBridge = (isReady: boolean) => {
       useEmbedHost.getState().parentOrigin ?? "*"
     );
     if (frameId) window.parent.postMessage(frameId, "*");
-  }, [applyConfigure, isReady]);
+  }, [applyConfigure, isReady, setColorScheme, toggleDarkMode]);
 
   useEffect(() => {
     const handler = (event: MessageEvent) => {
@@ -85,6 +89,7 @@ export const useEmbedBridge = (isReady: boolean) => {
               toggleDarkMode(parsed.options.theme === "dark");
               setColorScheme(parsed.options.theme);
             }
+            useFile.setState({ format: parsed.format });
             setContents({
               contents: parsed.content,
               format: parsed.format,

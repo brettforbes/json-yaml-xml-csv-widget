@@ -11,6 +11,7 @@
 | #8 | DV-5: Full editor layout on /widget route |
 | #9 | DV-6: Add start.ps1 and dev README |
 | #10 | DV-7: NOTICE and Apache headers on modified files |
+| #17 | DV-16: Full embed host contract and Embed_prompt.md |
 
 ## Epic DV-EPIC-2 — SpiderFeet host integration (Phase 2) — #2
 

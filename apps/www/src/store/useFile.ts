@@ -2,14 +2,11 @@ import debounce from "lodash.debounce";
 import { event as gaEvent } from "nextjs-google-analytics";
 import { toast } from "react-hot-toast";
 import { create } from "zustand";
-import exampleJson from "../data/example.json";
 import { FileFormat } from "../enums/file.enum";
 import { isIframe } from "../lib/utils/helpers";
 import { contentToJson, jsonToContent } from "../lib/utils/jsonAdapter";
 import useConfig from "./useConfig";
 import useJson from "./useJson";
-
-const defaultJson = JSON.stringify(exampleJson, null, 2);
 
 type SetContents = {
   contents?: string;
@@ -50,7 +47,7 @@ export type File = {
 const initialStates = {
   fileData: null as File | null,
   format: FileFormat.JSON,
-  contents: defaultJson,
+  contents: "",
   error: null as any,
   hasChanges: false,
   jsonSchema: null as object | null,
@@ -71,7 +68,7 @@ const debouncedUpdateJson = debounce((value: unknown) => {
 const useFile = create<FileStates & JsonActions>()((set, get) => ({
   ...initialStates,
   clear: () => {
-    set({ contents: "" });
+    set({ contents: "", format: FileFormat.JSON, error: null, hasChanges: false });
     useJson.getState().clear();
   },
   setJsonSchema: jsonSchema => set({ jsonSchema }),
@@ -100,11 +97,16 @@ const useFile = create<FileStates & JsonActions>()((set, get) => ({
   setContents: async ({ contents, hasChanges = true, skipUpdate = false, format }) => {
     try {
       set({
-        ...(contents && { contents }),
+        ...(contents !== undefined && { contents }),
         error: null,
         hasChanges,
         format: format ?? get().format,
       });
+
+      if (contents !== undefined && contents.length === 0) {
+        useJson.getState().clear();
+        return;
+      }
 
       const isFetchURL = window.location.href.includes("?");
       const json = await contentToJson(get().contents, get().format);
@@ -144,13 +146,15 @@ const useFile = create<FileStates & JsonActions>()((set, get) => ({
       return get().fetchUrl(url);
     }
 
-    let contents = defaultJson;
     const sessionContent = sessionStorage.getItem("content") as string | null;
     const format = sessionStorage.getItem("format") as FileFormat | null;
-    if (sessionContent && !widget) contents = sessionContent;
 
-    if (format) set({ format });
-    get().setContents({ contents, hasChanges: false });
+    if (sessionContent && !widget) {
+      if (format) set({ format });
+      return get().setContents({ contents: sessionContent, hasChanges: false });
+    }
+
+    get().clear();
   },
 }));
 
