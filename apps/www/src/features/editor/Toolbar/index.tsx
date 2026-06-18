@@ -4,40 +4,17 @@
  */
 
 import Link from "next/link";
-import { Flex, Group, Text } from "@mantine/core";
+import { Group, Text } from "@mantine/core";
 import styled from "styled-components";
 import toast from "react-hot-toast";
 import { AiOutlineFullscreen } from "react-icons/ai";
-import { FaChrome } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa6";
-import { TbExternalLink } from "react-icons/tb";
 import { GITHUB_REPO_URL, PRODUCT_NAME } from "../../../lib/constants/project";
-import { isDataViewerAppRoute } from "../../../lib/utils/embedMode";
-import { JSONCrackLogo } from "../../../layout/JSONCrackBrandLogo";
 import { FileMenu } from "./FileMenu";
 import { ThemeToggle } from "./ThemeToggle";
 import { ToolsMenu } from "./ToolsMenu";
 import { ViewMenu } from "./ViewMenu";
 import { StyledToolElement } from "./styles";
-
-const StyledToDiagramLink = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 4px 10px;
-  border-radius: 4px;
-  white-space: nowrap;
-  background: linear-gradient(135deg, #ff75b7 0%, #fed761 100%);
-  color: #1a1a1a;
-  text-decoration: none;
-  transition: opacity 0.15s ease;
-
-  &:hover {
-    opacity: 0.85;
-  }
-`;
 
 const StyledTools = styled.div`
   position: relative;
@@ -69,56 +46,21 @@ function fullscreenBrowser() {
 }
 
 export const Toolbar = () => {
-  const dataViewerApp = isDataViewerAppRoute();
-
   return (
     <StyledTools>
       <Group gap="xs" justify="left" w="100%" style={{ flexWrap: "nowrap" }}>
-        {!dataViewerApp && (
-          <StyledToolElement title="JSON Crack">
-            <Flex gap="xs" align="center" justify="center">
-              <JSONCrackLogo fontSize="14px" hideLogo />
-            </Flex>
-          </StyledToolElement>
-        )}
-        {dataViewerApp && (
-          <StyledToolElement title={PRODUCT_NAME}>
-            <Text fz="sm" fw={700} c="white" style={{ mixBlendMode: "difference" }}>
-              {PRODUCT_NAME}
-            </Text>
-          </StyledToolElement>
-        )}
+        <StyledToolElement title={PRODUCT_NAME}>
+          <Text fz="sm" fw={700} c="white" style={{ mixBlendMode: "difference" }}>
+            {PRODUCT_NAME}
+          </Text>
+        </StyledToolElement>
         <FileMenu />
         <ViewMenu />
         <ToolsMenu />
       </Group>
       <Group gap="xs" justify="right" w="100%" style={{ flexWrap: "nowrap" }}>
-        {!dataViewerApp && process.env.NEXT_PUBLIC_DISABLE_EXTERNAL_MODE !== "true" && (
-          <StyledToDiagramLink
-            href="https://todiagram.com/editor?utm_source=jsoncrack&utm_medium=toolbar"
-            target="_blank"
-            rel="noopener"
-          >
-            Upgrade to Pro Editor <TbExternalLink size={14} />
-          </StyledToDiagramLink>
-        )}
         <ThemeToggle />
-        {!dataViewerApp && (
-          <Link
-            href="https://chromewebstore.google.com/detail/json-crack/hbaeglefdflnhodchjiaphmheaojikhh"
-            rel="noopener"
-            target="_blank"
-          >
-            <StyledToolElement title="Get Chrome Extension">
-              <FaChrome size="20" />
-            </StyledToolElement>
-          </Link>
-        )}
-        <Link
-          href={dataViewerApp ? GITHUB_REPO_URL : "https://github.com/AykutSarac/jsoncrack.com"}
-          rel="noopener"
-          target="_blank"
-        >
+        <Link href={GITHUB_REPO_URL} rel="noopener" target="_blank">
           <StyledToolElement title="GitHub">
             <FaGithub size="20" />
           </StyledToolElement>

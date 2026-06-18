@@ -8,7 +8,7 @@ import { LuChevronDown } from "react-icons/lu";
 import { VscCheck, VscError, VscRunAll, VscSync, VscSyncIgnored } from "react-icons/vsc";
 import { formats } from "../../enums/file.enum";
 import { postFormatChanged } from "../../lib/embed/postToHost";
-import { isEmbedRoute } from "../../lib/utils/embedMode";
+import { useViewerRoute } from "../../lib/utils/embedMode";
 import useConfig from "../../store/useConfig";
 import useFile from "../../store/useFile";
 import useGraph from "./views/GraphView/stores/useGraph";
@@ -92,7 +92,7 @@ export const BottomBar = () => {
   const fullscreen = useGraph(state => state.fullscreen);
   const setFormat = useFile(state => state.setFormat);
   const currentFormat = useFile(state => state.format);
-  const embedMode = isEmbedRoute();
+  const { isEmbed: embedMode } = useViewerRoute();
 
   const toggleEditor = () => {
     toggleFullscreen(!fullscreen);

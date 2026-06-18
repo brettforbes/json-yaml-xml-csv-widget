@@ -78,15 +78,17 @@ Copy `apps/www/out/` into the host app, e.g. `dist/data-viewer/`, and point ifra
 ## 4. HTML skeleton
 
 ```html
-<div id="pane-data-viewer" class="h-100">
+<div id="pane-data-viewer" class="h-100 d-flex flex-column" style="min-height:0;">
   <iframe
     id="data-viewer-maps"
     title="Data Viewer"
     src="http://localhost:3000/widget"
-    style="border:0;width:100%;height:100%;"
+    style="border:0;width:100%;height:100%;flex:1 1 auto;min-height:0;display:block;"
   ></iframe>
 </div>
 ```
+
+**Sizing (host responsibility):** The viewer fills its iframe using `height: 100%`. The iframe must have an explicit height from a parent chain (`html` → layout → tab pane → container → iframe). If the viewer appears clipped or only toolbar-height tall, fix the **host** layout — not the viewer `src`. See §13.
 
 Use a **stable `src`** (no query churn). All data flows via `postMessage`.
 
@@ -135,7 +137,7 @@ iframe.contentWindow.postMessage({
 | `importExportRoot` | `""` | Logical root for import/export paths |
 | `fileIoMode` | `delegated` | Who handles file pickers and saves |
 | `parentOrigin` | `null` (`*`) | Origin used for viewer → host posts |
-| `theme` | viewer default | `light` or `dark` |
+| `theme` | `light` | `light` or `dark` — **send the host shell theme** in `data-viewer-configure` |
 
 ### 6.2 `data-viewer-set`
 
@@ -147,13 +149,16 @@ iframe.contentWindow.postMessage({
   protocolVersion: 1,
   frameId: "data-viewer-maps",
   content: "<raw string>",
-  format: "yaml",   // json | yaml | xml | csv
+  format: "yaml",   // optional — json | yaml | xml | csv (auto-detected if omitted)
+  filename: "scan.yaml", // optional — used for format detection when format omitted
   options: {
     theme: "dark",           // optional
     direction: "RIGHT"       // optional graph layout: LEFT|RIGHT|UP|DOWN
   }
 }, targetOrigin);
 ```
+
+**Format detection:** If `format` is omitted, the viewer picks JSON/YAML/XML/CSV from `filename` (extension) or by sniffing `content` (e.g. `<?xml` → XML, `---` / `key:` → YAML, tabular commas → CSV). The format dropdown updates **before** content is parsed. You can still send `data-viewer-set-mode` first when you know the format ahead of content.
 
 **Legacy (still supported):** `{ json: "<string>", options: {…} }` without `type` implies `format: "json"`.
 
@@ -223,7 +228,9 @@ Listen on `window.addEventListener("message", …)`.
 // Legacy: bare string equal to frameId may also be posted
 ```
 
-**Host action:** send `data-viewer-configure`, then initial `data-viewer-set` if data is already available.
+**Host action:** send `data-viewer-configure` (include `theme` from your shell), then initial `data-viewer-set` if data is already available.
+
+**Startup state:** Embed opens **empty** (no sample document). Theme is **light** until `data-viewer-configure.theme` or `data-viewer-theme` is applied.
 
 ### 7.2 `data-viewer-theme-changed`
 
@@ -316,7 +323,8 @@ The viewer still works, but embed-specific behaviour uses these defaults until c
 | `toolsMenuEnabled` | `true` |
 | `importExportRoot` | `""` |
 | `fileIoMode` | `delegated` |
-| `theme` | dark (from viewer localStorage) |
+| `theme` | `light` (until configure/theme message) |
+| Editor content | empty |
 
 **Recommendation:** always send `data-viewer-configure` immediately after `data-viewer-ready`.
 
@@ -397,7 +405,7 @@ Place in the host app (e.g. `src/js/data-viewer.js`):
         importExportRoot = "",
         toolsMenuEnabled = true,
         fileIoMode = "delegated",
-        theme = "dark",
+        theme = "light",
       } = options;
 
       const iframe = document.createElement("iframe");
@@ -481,7 +489,7 @@ Place in the host app (e.g. `src/js/data-viewer.js`):
       return instanceId;
     },
 
-    setData(instanceId, { content, format, options }) {
+    setData(instanceId, { content, format, filename, options }) {
       const state = instances.get(instanceId);
       if (!state) return;
       const send = () =>
@@ -490,6 +498,7 @@ Place in the host app (e.g. `src/js/data-viewer.js`):
           frameId: instanceId,
           content,
           format,
+          filename,
           options,
         });
       state.ready ? send() : state.queue.push(send);
@@ -548,11 +557,11 @@ Place in the host app (e.g. `src/js/data-viewer.js`):
 ## 10. Typical host sequence
 
 ```
-1. mount(iframe) 
+1. mount(iframe) with full-height container (see §4)
 2. ← data-viewer-ready
-3. → data-viewer-configure
-4. → data-viewer-set-mode (optional, if format known before content)
-5. → data-viewer-set (when scan/API data arrives)
+3. → data-viewer-configure (include theme from host shell, e.g. document.documentElement.dataset.bsTheme)
+4. → data-viewer-set-mode (optional — only if you want format set before content arrives)
+5. → data-viewer-set (content; format optional — auto-detected)
 6. ← data-viewer-theme-changed / fullscreen-changed (as user interacts)
 7. → data-viewer-clear (when host context resets)
 8. hide iframe on tab switch (do not unmount)
@@ -590,6 +599,10 @@ Place in the host app (e.g. `src/js/data-viewer.js`):
 
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
+| Viewer only toolbar tall / clipped | Host container has no height | Parent chain: `html, body { height:100% }`, tab pane `h-100` / `flex-fill`, iframe `width:100%;height:100%` (see §4) |
+| Sample fruit JSON on load | Old build or standalone session restore | Use `/widget`; embed starts empty. Standalone may restore `sessionStorage` from prior edit |
+| Wrong format / parse error on `set` | `format` mismatch | Omit `format` for auto-detect, or pass `filename`, or send `data-viewer-set-mode` before `set` |
+| Dark theme when host is light | Host did not send theme | Send `theme: "light"` or `"dark"` in `data-viewer-configure` from shell `data-bs-theme` / your theme API |
 | No graph after `set` | `content` empty or invalid for `format` | Send valid raw string; check viewer shows parse error in text pane |
 | Messages ignored | `frameId` mismatch | Host `frameId` must equal iframe `id` attribute |
 | Ready never fires | iframe blocked or wrong `src` | Confirm URL loads; check CSP `frame-src` |
@@ -624,6 +637,7 @@ The host agent **does** need: iframe HTML, `postMessage` handlers, and (for dele
 | `apps/www/src/hooks/useEmbedBridge.ts` | Inbound/outbound message hub |
 | `apps/www/src/lib/constants/embedProtocol.ts` | Message type constants |
 | `apps/www/src/lib/utils/embedMessage.ts` | Inbound parsing |
+| `apps/www/src/lib/utils/inferFormat.ts` | Format auto-detection for embed `set` |
 | `apps/www/src/lib/embed/postToHost.ts` | Outbound posts |
 | `apps/www/src/store/useEmbedHost.ts` | Runtime host config |
 | `.plan/01-embed-api.md` | Short API summary |

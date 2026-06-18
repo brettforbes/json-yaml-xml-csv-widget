@@ -12,7 +12,7 @@ import {
   postExport,
   postImportRequest,
 } from "../../../lib/embed/postToHost";
-import { isEmbedRoute } from "../../../lib/utils/embedMode";
+import { useViewerRoute } from "../../../lib/utils/embedMode";
 import useEmbedHost from "../../../store/useEmbedHost";
 import useFile from "../../../store/useFile";
 import { useModal } from "../../../store/useModal";
@@ -22,7 +22,7 @@ export const FileMenu = () => {
   const setVisible = useModal(state => state.setVisible);
   const getContents = useFile(state => state.getContents);
   const getFormat = useFile(state => state.getFormat);
-  const embedMode = isEmbedRoute();
+  const { isEmbed: embedMode } = useViewerRoute();
   const fileIoMode = useEmbedHost(state => state.fileIoMode);
   const importExportRoot = useEmbedHost(state => state.importExportRoot);
 

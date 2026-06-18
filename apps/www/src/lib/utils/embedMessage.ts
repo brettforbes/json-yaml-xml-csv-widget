@@ -5,6 +5,7 @@
 
 import type { LayoutDirection } from "jsoncrack-react";
 import { FileFormat } from "../../enums/file.enum";
+import { resolveEmbedFormat } from "./inferFormat";
 import {
   EMBED_CLEAR,
   EMBED_CONFIGURE,
@@ -44,6 +45,7 @@ export interface EmbedSetPayload extends EmbedInboundBase {
   content?: string;
   json?: string;
   format?: EmbedFormat | string;
+  filename?: string;
   options?: EmbedOptions;
 }
 
@@ -102,7 +104,11 @@ export const parseEmbedSetPayload = (
 
   return {
     content,
-    format: normalizeEmbedFormat(payload.format ?? (payload.json ? "json" : undefined)),
+    format: resolveEmbedFormat(
+      content,
+      payload.format ?? (payload.json ? "json" : undefined),
+      payload.filename
+    ),
     options: payload.options,
   };
 };

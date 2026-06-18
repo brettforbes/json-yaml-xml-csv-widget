@@ -31,9 +31,13 @@ This document maps **host capabilities** to **SpiderFeet bridge responsibilities
   importExportRoot: "/spiderfeet/exports",  // logical path — host maps to real FS
   fileIoMode: "delegated",                  // recommended: host handles File → Import/Export
   parentOrigin: window.location.origin,
-  theme: "dark"
+  theme: document.documentElement.dataset.bsTheme === "dark" ? "dark" : "light"
 }
 ```
+
+**Theme:** Read from SpiderFeet shell (`data-bs-theme` on `<html>`) and pass in `configure.theme`. Viewer defaults to **light** until configure arrives.
+
+**Empty startup:** `/widget` opens with no sample data. Push scan/API content with `data-viewer-set` after configure.
 
 ### Set data
 
@@ -43,9 +47,12 @@ This document maps **host capabilities** to **SpiderFeet bridge responsibilities
   protocolVersion: 1,
   frameId: "data-viewer-maps",
   content: "<raw string>",
-  format: "yaml"   // json | yaml | xml | csv
+  format: "yaml",      // optional — auto-detected from content/filename if omitted
+  filename: "out.yaml" // optional — helps detection when format omitted
 }
 ```
+
+**Format auto-detect:** If you omit `format`, the viewer sniffs YAML/XML/CSV/JSON and updates the bottom-bar dropdown before parsing. You can still call `setMode(instanceId, "xml")` before `setData` when the format is known early.
 
 ### Set mode only (before or without new content)
 
@@ -122,12 +129,24 @@ Each top-level pane (Maps, Tests, Subscriptions, **Composer** when enabled) gets
   <li><button data-subtab="data-viewer">Data Viewer</button></li>
 </ul>
 <div data-subtab-pane="primary">… existing content …</div>
-<div data-subtab-pane="data-viewer" class="d-none">
-  <div data-data-viewer="maps" class="h-100"></div>
+<div data-subtab-pane="data-viewer" class="d-none h-100 d-flex flex-column" style="min-height:0;">
+  <div data-data-viewer="maps" class="flex-fill" style="min-height:0;"></div>
 </div>
 ```
 
 Sub-tab switching toggles `d-none` only — iframe stays mounted.
+
+### Full-size iframe (host layout)
+
+The viewer fills `height: 100%` inside the iframe. If you only see the toolbar or a short strip, the **SpiderFeet layout** is missing height on the parent chain:
+
+| Element | Required |
+|---------|----------|
+| Tab content / sub-tab pane | `h-100`, `flex-fill`, or explicit `height` |
+| `data-data-viewer` mount container | `height: 100%` or `flex: 1; min-height: 0` |
+| iframe (created by bridge) | `width:100%;height:100%;display:block` |
+
+This repo sets `html, body, #__next { height: 100% }` on `/widget`. The host must give the iframe a bounded height to fill.
 
 ---
 
@@ -149,7 +168,7 @@ window.Widgets.DataViewer = {
   }),
 
   configure(instanceId, { toolsMenuEnabled, importExportRoot, fileIoMode, theme }),
-  setData(instanceId, { content, format, options }),
+  setData(instanceId, { content, format, filename, options }),
   setMode(instanceId, format, clear = false),
   clear(instanceId),
   setTheme(instanceId, theme),
@@ -173,11 +192,11 @@ window.Widgets.DataViewer = {
 ### Typical sequence (per context)
 
 ```
-1. mount(container, { instanceId: "data-viewer-maps", importExportRoot: "/maps/out", … })
+1. mount(container, { instanceId: "data-viewer-maps", importExportRoot: "/maps/out", theme: shellTheme, … })
 2. ← data-viewer-ready
-3. → data-viewer-configure
-4. → data-viewer-set-mode (optional, if format known first)
-5. → data-viewer-set (when API/scan data arrives)
+3. → data-viewer-configure (theme from host shell)
+4. → data-viewer-set-mode (optional, if format known before content)
+5. → data-viewer-set (content; format/filename optional for auto-detect)
 6. ← theme-changed / fullscreen-changed / import-request / export (as user interacts)
 7. → data-viewer-clear (when host context resets)
 8. hide sub-tab pane (d-none) — do not unmount iframe
