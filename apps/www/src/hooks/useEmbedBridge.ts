@@ -7,8 +7,10 @@ import { useEffect, useRef } from "react";
 import { useMantineColorScheme } from "@mantine/core";
 import toast from "react-hot-toast";
 import { postCleared, postFullscreenChanged, postThemeChanged } from "../lib/embed/postToHost";
+import { resetEmbedViewerState } from "../lib/embed/resetEmbedViewerState";
 import { EMBED_READY } from "../lib/constants/embedProtocol";
 import { parseEmbedInboundMessage } from "../lib/utils/embedMessage";
+import { isEmbedRoute } from "../lib/utils/embedMode";
 import useConfig from "../store/useConfig";
 import useEmbedHost from "../store/useEmbedHost";
 import useFile from "../store/useFile";
@@ -46,8 +48,8 @@ export const useEmbedBridge = (isReady: boolean) => {
     if (!isReady) return;
 
     suppressThemeOutbound.current = true;
-    toggleDarkMode(false);
-    setColorScheme("light");
+    suppressGraphFsOutbound.current = true;
+    toggleFullscreen(false);
 
     const frameId = window.frameElement?.getAttribute("id") ?? null;
     applyConfigure({ frameId });
@@ -57,7 +59,7 @@ export const useEmbedBridge = (isReady: boolean) => {
       useEmbedHost.getState().parentOrigin ?? "*"
     );
     if (frameId) window.parent.postMessage(frameId, "*");
-  }, [applyConfigure, isReady, setColorScheme, toggleDarkMode]);
+  }, [applyConfigure, isReady, toggleFullscreen]);
 
   useEffect(() => {
     const handler = (event: MessageEvent) => {
@@ -99,11 +101,18 @@ export const useEmbedBridge = (isReady: boolean) => {
             break;
           }
           case "set-mode": {
-            setFormat(parsed.format);
             if (parsed.clear) {
               clearFile();
-              clearJson();
+              useFile.setState({ format: parsed.format });
               postCleared();
+              break;
+            }
+
+            const hasContent = Boolean(useFile.getState().getContents().trim());
+            if (hasContent) {
+              void setFormat(parsed.format);
+            } else {
+              useFile.setState({ format: parsed.format });
             }
             break;
           }
@@ -111,6 +120,9 @@ export const useEmbedBridge = (isReady: boolean) => {
             clearFile();
             clearJson();
             postCleared();
+            break;
+          case "reset":
+            resetEmbedViewerState();
             break;
           case "theme": {
             suppressThemeOutbound.current = true;
@@ -121,7 +133,10 @@ export const useEmbedBridge = (isReady: boolean) => {
           case "fullscreen": {
             if (parsed.target === "browser") {
               suppressBrowserFsOutbound.current = true;
-              void applyBrowserFullscreen(parsed.fullscreen);
+              useEmbedHost.getState().setBrowserFullscreenDelegated(parsed.fullscreen);
+              if (!isEmbedRoute()) {
+                void applyBrowserFullscreen(parsed.fullscreen);
+              }
             } else {
               suppressGraphFsOutbound.current = true;
               toggleFullscreen(parsed.fullscreen);
@@ -172,6 +187,7 @@ export const useEmbedBridge = (isReady: boolean) => {
 
   useEffect(() => {
     const onFullscreenChange = () => {
+      if (isEmbedRoute()) return;
       if (suppressBrowserFsOutbound.current) {
         suppressBrowserFsOutbound.current = false;
         return;

@@ -20,7 +20,7 @@ const useJson = create<JsonStates & JsonActions>()((set, get) => ({
     set({ json, loading: false });
   },
   clear: () => {
-    set({ json: "", loading: false });
+    set({ json: "{}", loading: false });
   },
 }));
 

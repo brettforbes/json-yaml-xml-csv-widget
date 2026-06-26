@@ -1,15 +1,12 @@
 import { Menu, Flex, SegmentedControl } from "@mantine/core";
-import { useSessionStorage } from "@mantine/hooks";
 import { event as gaEvent } from "nextjs-google-analytics";
 import { CgChevronDown } from "react-icons/cg";
 import { ViewMode } from "../../../enums/viewMode.enum";
+import { useViewModeStorage } from "../../../hooks/useViewModeStorage";
 import { StyledToolElement } from "./styles";
 
 export const ViewMenu = () => {
-  const [viewMode, setViewMode] = useSessionStorage({
-    key: "viewMode",
-    defaultValue: ViewMode.Graph,
-  });
+  const [viewMode, setViewMode] = useViewModeStorage();
 
   return (
     <Menu shadow="md" closeOnItemClick={false} withArrow>

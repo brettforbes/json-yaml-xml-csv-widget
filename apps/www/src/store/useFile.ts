@@ -81,17 +81,23 @@ const useFile = create<FileStates & JsonActions>()((set, get) => ({
   getFormat: () => get().format,
   getHasChanges: () => get().hasChanges,
   setFormat: async format => {
-    try {
-      const prevFormat = get().format;
+    const prevFormat = get().format;
+    if (format === prevFormat) return;
 
+    if (!get().contents.trim()) {
+      set({ format });
+      return;
+    }
+
+    try {
       set({ format });
       const contentJson = await contentToJson(get().contents, prevFormat);
       const jsonContent = await jsonToContent(JSON.stringify(contentJson, null, 2), format);
 
-      get().setContents({ contents: jsonContent });
+      get().setContents({ contents: jsonContent, hasChanges: true });
     } catch {
-      get().clear();
-      console.warn("The content was unable to be converted, so it was cleared instead.");
+      set({ format: prevFormat });
+      toast.error("Unable to convert content to the selected format.");
     }
   },
   setContents: async ({ contents, hasChanges = true, skipUpdate = false, format }) => {
