@@ -244,6 +244,8 @@ User toggled theme inside viewer.
 
 ### 7.3 `data-viewer-fullscreen-changed`
 
+Fired when the user toggles fullscreen **inside the viewer** (iframe only — not posted in standalone `/` or `/editor`).
+
 ```js
 {
   type: "data-viewer-fullscreen-changed",
@@ -254,12 +256,43 @@ User toggled theme inside viewer.
 }
 ```
 
-| `target` | Meaning |
-|----------|---------|
-| `graph` | Text pane collapsed/expanded (bottom-bar control) |
-| `browser` | HTML fullscreen API (toolbar control) |
+| `target` | Viewer control | What changes inside iframe |
+|----------|----------------|----------------------------|
+| `graph` | Bottom bar **panel-close** icon (collapse text pane) | Text editor pane hidden; graph uses full iframe width |
+| `graph` | Left-edge **chevron** (“Open editor”) or bottom bar again | Text pane restored (`fullscreen: false`) |
+| `browser` | Top toolbar **fullscreen** icon | Browser HTML fullscreen on the iframe document |
 
-**Host action:** resize surrounding layout, sync host chrome, or mirror fullscreen state.
+**Expand (graph):** user clicks panel-close → host receives `{ fullscreen: true, target: "graph" }`.
+
+**Restore (graph):** user clicks chevron or panel-close again → host receives `{ fullscreen: false, target: "graph" }`.
+
+The viewer **does not** change the host tab layout by itself. The enclosing app must listen and react — for example expand the iframe container when `fullscreen: true` and **snap back** to the normal sub-tab/split layout when `fullscreen: false`.
+
+**Recommended host handler:**
+
+```js
+window.addEventListener("message", (event) => {
+  if (event.data?.type !== "data-viewer-fullscreen-changed") return;
+  const { fullscreen, target, frameId } = event.data;
+
+  if (target === "graph") {
+    const pane = document.querySelector(`[data-data-viewer="${frameId}"]`)?.closest("[data-subtab-pane]");
+    if (fullscreen) {
+      // e.g. hide host sidebars, let iframe flex-fill
+      pane?.classList.add("data-viewer-graph-expanded");
+    } else {
+      // restore normal tab layout when user hits reduce / open-editor
+      pane?.classList.remove("data-viewer-graph-expanded");
+    }
+  }
+
+  if (target === "browser") {
+    // optional: hide host chrome while iframe document is browser-fullscreen
+  }
+});
+```
+
+**Host → viewer (mirror or drive state):** send `data-viewer-fullscreen` with the same `target` and `fullscreen` values (see §6.6).
 
 ### 7.4 `data-viewer-cleared`
 

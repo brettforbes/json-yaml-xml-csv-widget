@@ -25,10 +25,19 @@ export interface EmbedHostConfig {
   /** When set, outbound postMessage uses this origin instead of `*`. */
   parentOrigin: string | null;
   configured: boolean;
+  /**
+   * Embed `/widget` route: browser fullscreen is delegated to the host (CSS overlay)
+   * because `requestFullscreen()` inside a cross-origin iframe is blocked.
+   */
+  browserFullscreenDelegated: boolean;
+  /** Incremented on `data-viewer-reset` so embed UI can remount with defaults. */
+  viewerResetEpoch: number;
 }
 
 interface EmbedHostActions {
   applyConfigure: (partial: Partial<EmbedHostConfig>) => void;
+  setBrowserFullscreenDelegated: (fullscreen: boolean) => void;
+  bumpViewerReset: () => void;
   reset: () => void;
 }
 
@@ -39,6 +48,8 @@ const initialState: EmbedHostConfig = {
   fileIoMode: "delegated",
   parentOrigin: null,
   configured: false,
+  browserFullscreenDelegated: false,
+  viewerResetEpoch: 0,
 };
 
 const useEmbedHost = create<EmbedHostConfig & EmbedHostActions>(set => ({
@@ -49,6 +60,8 @@ const useEmbedHost = create<EmbedHostConfig & EmbedHostActions>(set => ({
       ...partial,
       configured: true,
     })),
+  setBrowserFullscreenDelegated: browserFullscreenDelegated => set({ browserFullscreenDelegated }),
+  bumpViewerReset: () => set(state => ({ viewerResetEpoch: state.viewerResetEpoch + 1 })),
   reset: () => set(initialState),
 }));
 

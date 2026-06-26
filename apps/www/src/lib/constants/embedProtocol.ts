@@ -24,6 +24,9 @@ export const EMBED_THEME = "data-viewer-theme" as const;
 /** Host → viewer: set graph-pane or browser fullscreen state. */
 export const EMBED_FULLSCREEN = "data-viewer-fullscreen" as const;
 
+/** Host → viewer: reset graph/view preferences to embed defaults. */
+export const EMBED_RESET = "data-viewer-reset" as const;
+
 /** Viewer → host: user or viewer changed theme. */
 export const EMBED_THEME_CHANGED = "data-viewer-theme-changed" as const;
 

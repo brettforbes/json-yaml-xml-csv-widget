@@ -10,6 +10,9 @@ import toast from "react-hot-toast";
 import { AiOutlineFullscreen } from "react-icons/ai";
 import { FaGithub } from "react-icons/fa6";
 import { GITHUB_REPO_URL, PRODUCT_NAME } from "../../../lib/constants/project";
+import { postFullscreenChanged } from "../../../lib/embed/postToHost";
+import { useViewerRoute } from "../../../lib/utils/embedMode";
+import useEmbedHost from "../../../store/useEmbedHost";
 import { FileMenu } from "./FileMenu";
 import { ThemeToggle } from "./ThemeToggle";
 import { ToolsMenu } from "./ToolsMenu";
@@ -46,6 +49,20 @@ function fullscreenBrowser() {
 }
 
 export const Toolbar = () => {
+  const { isEmbed } = useViewerRoute();
+  const browserFullscreenDelegated = useEmbedHost(state => state.browserFullscreenDelegated);
+  const setBrowserFullscreenDelegated = useEmbedHost(state => state.setBrowserFullscreenDelegated);
+
+  const handleFullscreen = () => {
+    if (isEmbed) {
+      const next = !browserFullscreenDelegated;
+      setBrowserFullscreenDelegated(next);
+      postFullscreenChanged(next, "browser");
+      return;
+    }
+    fullscreenBrowser();
+  };
+
   return (
     <StyledTools>
       <Group gap="xs" justify="left" w="100%" style={{ flexWrap: "nowrap" }}>
@@ -65,7 +82,7 @@ export const Toolbar = () => {
             <FaGithub size="20" />
           </StyledToolElement>
         </Link>
-        <StyledToolElement title="Fullscreen" onClick={fullscreenBrowser}>
+        <StyledToolElement title="Fullscreen" onClick={handleFullscreen}>
           <AiOutlineFullscreen size="20" />
         </StyledToolElement>
       </Group>

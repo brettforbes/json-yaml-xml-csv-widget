@@ -99,19 +99,14 @@ export const EmbedEditorLayout = () => {
           <Toolbar />
           <StyledEditorWrapper>
             <StyledEditor proportionalLayout={false}>
-              <Allotment.Pane
-                preferredSize={450}
-                minSize={fullscreen ? 0 : 300}
-                maxSize={800}
-                visible={!fullscreen}
-              >
+              <Allotment.Pane preferredSize={360} minSize={200} maxSize={800} visible={!fullscreen}>
                 <StyledTextEditor>
                   <BottomBar />
                   <TextEditor />
                 </StyledTextEditor>
               </Allotment.Pane>
-              <Allotment.Pane minSize={0}>
-                <LiveEditor />
+              <Allotment.Pane minSize={280}>
+                <LiveEditor isWidget />
               </Allotment.Pane>
             </StyledEditor>
             {fullscreen && (

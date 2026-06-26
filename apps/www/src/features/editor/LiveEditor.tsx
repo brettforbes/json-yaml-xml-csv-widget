@@ -1,7 +1,9 @@
 import React from "react";
-import { useSessionStorage } from "@mantine/hooks";
 import styled from "styled-components";
+import { useViewModeStorage } from "../../hooks/useViewModeStorage";
 import { ViewMode } from "../../enums/viewMode.enum";
+import { useViewerRoute } from "../../lib/utils/embedMode";
+import useEmbedHost from "../../store/useEmbedHost";
 import { GraphView } from "./views/GraphView";
 import { TreeView } from "./views/TreeView";
 
@@ -27,21 +29,26 @@ const StyledLiveEditor = styled.div`
   }
 `;
 
-const View = () => {
-  const [viewMode] = useSessionStorage({
-    key: "viewMode",
-    defaultValue: ViewMode.Graph,
-  });
+const View = ({ isWidget }: { isWidget?: boolean }) => {
+  const { isEmbed } = useViewerRoute();
+  const embedMode = isWidget || isEmbed;
+  const viewerResetEpoch = useEmbedHost(state => state.viewerResetEpoch);
+  const [viewMode, setViewMode] = useViewModeStorage();
 
-  if (viewMode === ViewMode.Graph) return <GraphView />;
+  React.useEffect(() => {
+    if (!embedMode || viewerResetEpoch === 0) return;
+    setViewMode(ViewMode.Graph);
+  }, [embedMode, viewerResetEpoch, setViewMode]);
+
+  if (viewMode === ViewMode.Graph) return <GraphView isWidget={isWidget} />;
   if (viewMode === ViewMode.Tree) return <TreeView />;
   return null;
 };
 
-const LiveEditor = () => {
+const LiveEditor = ({ isWidget }: { isWidget?: boolean }) => {
   return (
     <StyledLiveEditor onContextMenuCapture={e => e.preventDefault()}>
-      <View />
+      <View isWidget={isWidget} />
     </StyledLiveEditor>
   );
 };

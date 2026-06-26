@@ -10,6 +10,7 @@ import {
   EMBED_CLEAR,
   EMBED_CONFIGURE,
   EMBED_FULLSCREEN,
+  EMBED_RESET,
   EMBED_SET,
   EMBED_SET_MODE,
   EMBED_THEME,
@@ -120,6 +121,7 @@ export type ParsedEmbedMessage =
   | { kind: "clear" }
   | { kind: "theme"; theme: EmbedTheme }
   | { kind: "fullscreen"; fullscreen: boolean; target: EmbedFullscreenTarget }
+  | { kind: "reset" }
   | { kind: "legacy-set"; content: string; format: FileFormat; options?: EmbedOptions };
 
 export const parseEmbedInboundMessage = (data: unknown): ParsedEmbedMessage | null => {
@@ -164,6 +166,8 @@ export const parseEmbedInboundMessage = (data: unknown): ParsedEmbedMessage | nu
         target: fs.target === "browser" ? "browser" : "graph",
       };
     }
+    case EMBED_RESET:
+      return { kind: "reset" };
     default:
       return null;
   }
